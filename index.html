@@ -395,13 +395,15 @@
         document.getElementById('home-buttons').classList.remove('hide');
         document.getElementById('pending-orders').classList.add('hide');
       }
+      // Ensure follow button state is correct when navigating to view-follow
+      if (targetView === 6) {
+        initFollowState();
+      }
     }
 
     window.onload = () => {
       // show lucide icons if present
       try { if (window.lucide) lucide.createIcons(); } catch (e) { /* ignore */ }
-      // initialize follow button visibility depending on stored state
-      initFollowState();
       navigate(1, 'Introduction');
     };
 
@@ -534,7 +536,7 @@
       continueContainer.classList.remove('hide');
     }
 
-    // ---- Updated WhatsApp share function (uses dynamic current page URL) ----
+    // ---- WhatsApp share function (uses dynamic current page URL) ----
     function doShare() {
       const currentUrl = window.location.href;
       const shareMessage = encodeURIComponent(
@@ -619,8 +621,21 @@
     // ----------------- FOLLOW FLOW LOGIC -----------------
     function initFollowState() {
       const done = localStorage.getItem('gm_follow_done') === 'true';
+      const clicked = localStorage.getItem('gm_follow_clicked');
+      const required = localStorage.getItem('gm_follow_required') === 'true';
       if (done) {
         showFollowContinue(true);
+      } else if (required && clicked) {
+        // Check if enough time has elapsed since clicking
+        const clickedTime = parseInt(clicked, 10);
+        const now = Date.now();
+        const elapsed = now - clickedTime;
+        const minDelay = 4000;
+        if (elapsed >= minDelay) {
+          showFollowContinue(true);
+        } else {
+          showFollowContinue(false);
+        }
       } else {
         showFollowContinue(false);
       }
@@ -641,7 +656,9 @@
     }
 
     window.addEventListener('focus', () => {
-      tryRevealFollowContinue();
+      if (currentPage === 6) {
+        tryRevealFollowContinue();
+      }
     });
 
     function tryRevealFollowContinue() {
@@ -651,8 +668,7 @@
       }
       const clicked = localStorage.getItem('gm_follow_clicked');
       const required = localStorage.getItem('gm_follow_required') === 'true';
-      if (!required) return;
-      if (!clicked) {
+      if (!required || !clicked) {
         showFollowContinue(false);
         return;
       }
@@ -664,7 +680,9 @@
         showFollowContinue(true);
       } else {
         setTimeout(() => {
-          showFollowContinue(true);
+          if (currentPage === 6) {
+            showFollowContinue(true);
+          }
         }, Math.max(0, minDelay - elapsed));
       }
     }
@@ -672,6 +690,7 @@
     function completeAfterFollow() {
       localStorage.setItem('gm_follow_done', 'true');
       localStorage.removeItem('gm_follow_required');
+      localStorage.removeItem('gm_follow_clicked');
       navigate(5, 'Order Complete');
     }
 
