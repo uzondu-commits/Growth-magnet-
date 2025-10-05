@@ -367,7 +367,6 @@
       { quantity: '1,000,000+', premium: true }
     ];
 
-    const FIXED_GITHUB_URL = 'https://uzondu-commits.github.io/Growth-magnet-/';
     const FB_FOLLOW_LINK = 'https://www.facebook.com/share/1BAMFuDKBT/';
 
     function navigate(targetView, statusText, resetState = false, isPostCompletion = false) {
@@ -535,9 +534,9 @@
       continueContainer.classList.remove('hide');
     }
 
-    // ---- Updated WhatsApp share function (uses fixed GitHub link) ----
+    // ---- Updated WhatsApp share function (uses dynamic current page URL) ----
     function doShare() {
-      const fixedUrl = 'https://uzondu-commits.github.io/Growth-magnet-/';
+      const currentUrl = window.location.href;
       const shareMessage = encodeURIComponent(
         `🚀 *Growth Magnet - Grow Your Social Media Fast!*\n\n` +
         `I just discovered Growth Magnet - a trusted platform that helps you gain REAL followers on Facebook, Instagram, TikTok, YouTube & more!\n\n` +
@@ -545,7 +544,7 @@
         `✅ Proven results in 7 days\n` +
         `✅ Trusted by thousands worldwide\n\n` +
         `Check it out here:\n\n` +
-        `${fixedUrl}\n\n` +
+        `${currentUrl}\n\n` +
         `Worth a try if you want to grow your audience! 💯`
       );
       const whatsappShareUrl = `https://api.whatsapp.com/send?text=${shareMessage}`;
