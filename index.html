@@ -1,329 +1,696 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MyPrintShop – Paper Cutting Tool</title>
-    <!-- Load Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        /* Custom styles for canvas and font */
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f7f7f7;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 1rem;
-        }
-        .container-card {
-            max-width: 600px;
-            width: 100%;
-        }
-        #visualizationCanvas {
-            border: 2px solid #3b82f6;
-            background-color: #fef2f2; /* Light red/pink for waste background */
-            width: 100%; /* Make canvas responsive to container width */
-            height: auto; /* Height will be set by JavaScript to maintain aspect ratio */
-            border-radius: 0.5rem;
-        }
-        .input-field {
-            padding: 0.5rem;
-            border-radius: 0.375rem;
-            border: 1px solid #d1d5db;
-            width: 100%;
-        }
-        .result-box {
-            background-color: #ecfdf5;
-            border: 1px solid #10b981;
-        }
-    </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Growth Magnet - Social Media Growth</title>
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- AOS -->
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  <!-- Font Awesome for crisp brand icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <!-- Lucide (optional for other small icons) -->
+  <script type="module" src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
+
+    :root {
+      --primary-blue: #2563eb;
+      --accent-gold: #f59e0b;
+      --muted: #6b7280;
+      --card: #ffffff;
+      --bg: #f7fafc;
+    }
+
+    html, body { height: 100%; }
+    body {
+      font-family: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: linear-gradient(180deg, #f8fafc 0%, #f3f6fb 100%);
+      color: #0f172a;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      scroll-behavior: smooth;
+    }
+
+    .premium-card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.85), rgba(250,250,250,0.9));
+      border: 1px solid rgba(34,197,94,0.06);
+      box-shadow: 0 8px 30px rgba(2,6,23,0.06);
+      backdrop-filter: blur(6px);
+    }
+
+    .gradient-btn {
+      background: linear-gradient(90deg, var(--primary-blue), #60a5fa);
+      color: white;
+      transition: transform .22s cubic-bezier(.2,.9,.25,1), box-shadow .22s;
+      box-shadow: 0 8px 24px rgba(37,99,235,0.18);
+    }
+    .gradient-btn:hover { transform: translateY(-4px) scale(1.01); box-shadow: 0 18px 40px rgba(37,99,235,0.20); }
+
+    @keyframes floatUp {
+      from { transform: translateY(8px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    .hero-animate { animation: floatUp .7s cubic-bezier(.2,.9,.25,1) both; }
+
+    .social-card {
+      transition: transform .18s ease, box-shadow .18s ease, border-color .18s;
+      border-radius: 14px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 110px;
+    }
+    .social-card:hover { transform: translateY(-6px) scale(1.02); box-shadow: 0 18px 40px rgba(2,6,23,0.06); }
+
+    .premium-bg {
+      background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 60%);
+      color: #1f2937;
+      font-weight: 700;
+      border: 1px solid rgba(249,115,22,0.15);
+    }
+
+    .glass-modal {
+      background: linear-gradient(180deg, rgba(255,255,255,0.55), rgba(255,255,255,0.40));
+      border-radius: 14px;
+      padding: 20px;
+      box-shadow: 0 20px 40px rgba(2,6,23,0.12);
+      backdrop-filter: blur(6px) saturate(110%);
+      border: 1px solid rgba(15,23,42,0.05);
+    }
+
+    .page-view { display: none; min-height: 70vh; }
+
+    .platform-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(110px, 1fr));
+      gap: 18px;
+      justify-items: center;
+      align-items: center;
+      width: 100%;
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
+    @media (min-width: 768px) {
+      .platform-grid { grid-template-columns: repeat(4, 1fr); max-width: 720px; gap: 22px; }
+    }
+
+    .progress-track { background: rgba(2,6,23,0.06); border-radius: 999px; height: 12px; overflow: hidden; }
+    .progress-fill { height: 100%; width: 0%; border-radius: 999px; background: linear-gradient(90deg, var(--primary-blue), #60a5fa); transition: width .6s cubic-bezier(.2,.9,.25,1); }
+
+    .muted { color: var(--muted); }
+    .hide { display: none !important; }
+
+    /* Icon styling */
+    .platform-icon { font-size: 28px; width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center; }
+    .fa-facebook-f { color: #1877F2; }
+    .fa-instagram { color: #E1306C; }
+    .fa-youtube { color: #FF0000; }
+    .fa-tiktok { color: #000000; } /* TikTok brand color is multi, black is fine visually */
+
+    /* How-it-works content */
+    .how-step { background: linear-gradient(90deg, rgba(37,99,235,0.05), rgba(245,158,11,0.02)); padding: 14px; border-radius: 12px; }
+  </style>
 </head>
-<body>
-
-<div class="container-card bg-white shadow-2xl rounded-xl p-6 md:p-8">
-    <h1 class="text-3xl font-extrabold text-blue-700 mb-6 text-center">
-        MyPrintShop – Paper Cutter
-    </h1>
-
-    <!-- Input Section -->
-    <div class="space-y-4 mb-8">
-        <!-- Big Paper Inputs -->
-        <div class="bg-blue-50 p-4 rounded-lg shadow-inner">
-            <h2 class="font-semibold text-lg text-blue-800 mb-3">Big Paper Size (inches)</h2>
-            <div class="flex flex-col sm:flex-row gap-4">
-                <div class="flex-1">
-                    <label for="bigW" class="block text-sm font-medium text-gray-700">Width (W)</label>
-                    <input type="number" id="bigW" value="7" min="0.1" step="0.1" class="input-field mt-1" placeholder="e.g., 7">
-                </div>
-                <div class="flex-1">
-                    <label for="bigH" class="block text-sm font-medium text-gray-700">Height (H)</label>
-                    <input type="number" id="bigH" value="14" min="0.1" step="0.1" class="input-field mt-1" placeholder="e.g., 14">
-                </div>
-            </div>
+<body class="antialiased">
+  <!-- NAV -->
+  <header class="sticky top-0 z-30 bg-transparent backdrop-blur-sm py-4">
+    <div class="max-w-6xl mx-auto px-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="rounded-full w-10 h-10 flex items-center justify-center" style="background: linear-gradient(90deg, #2563eb, #60a5fa); color: white; font-weight: 700;">G</div>
+        <div>
+          <div class="text-lg font-extrabold">Growth Magnet</div>
+          <div id="status-bar" class="text-xs muted">Step 1: Introduction</div>
         </div>
-
-        <!-- Job Size Inputs -->
-        <div class="bg-green-50 p-4 rounded-lg shadow-inner">
-            <h2 class="font-semibold text-lg text-green-800 mb-3">Job Size (inches)</h2>
-            <div class="flex flex-col sm:flex-row gap-4">
-                <div class="flex-1">
-                    <label for="jobW" class="block text-sm font-medium text-gray-700">Width (W)</label>
-                    <input type="number" id="jobW" value="6" min="0.1" step="0.1" class="input-field mt-1" placeholder="e.g., 6">
-                </div>
-                <div class="flex-1">
-                    <label for="jobH" class="block text-sm font-medium text-gray-700">Height (H)</label>
-                    <input type="number" id="jobH" value="4" min="0.1" step="0.1" class="input-field mt-1" placeholder="e.g., 4">
-                </div>
-            </div>
-        </div>
-
-        <!-- Options -->
-        <div class="flex items-center mt-4 p-4 bg-gray-50 rounded-lg">
-            <input type="checkbox" id="allowRotate" checked class="h-5 w-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
-            <label for="allowRotate" class="ml-3 block text-base font-medium text-gray-900">
-                Allow turning piece 90° (Optimization)
-            </label>
-        </div>
-
-        <!-- Button -->
-        <button id="showFitBtn" class="w-full py-3 bg-indigo-600 text-white font-bold text-lg rounded-xl shadow-lg hover:bg-indigo-700 transition-colors transform active:scale-95">
-            SHOW FIT
-        </button>
+      </div>
+      <nav class="text-sm muted hidden sm:flex gap-6">
+        <a href="#home" onclick="navigate(1,'Introduction')" class="hover:underline">Home</a>
+        <a href="#select" onclick="navigate(2,'Platform Selection')" class="hover:underline">Get Followers</a>
+        <a href="#how" onclick="navigate(7,'How It Works')" class="hover:underline">How It Works</a>
+        <a href="#share" onclick="navigate(3,'Payment & Share')" class="hover:underline">Share / Payment</a>
+      </nav>
     </div>
+  </header>
 
-    <!-- Results Section -->
-    <div id="results" class="hidden">
-        <div class="result-box p-4 rounded-xl shadow-md mb-6">
-            <h2 class="text-xl font-bold text-green-700 mb-2">Cutting Report</h2>
-            <p class="text-gray-800 mb-1"><span class="font-bold">Fits:</span> <span id="piecesOutput" class="text-2xl text-green-900">0</span> pieces</p>
-            <p class="text-gray-600"><span class="font-bold">Waste:</span> <span id="wasteOutput">0 in²</span></p>
-            <p class="text-sm italic text-gray-500 mt-2"><span id="wasteDescription"></span></p>
-        </div>
-
-        <!-- Visualization -->
-        <div class="border-2 border-gray-300 p-2 rounded-xl bg-white shadow-xl">
-            <h3 class="font-semibold text-center text-gray-700 mb-2">Paper Cut Visualization</h3>
-            <div class="flex justify-center items-center overflow-hidden">
-                 <!-- Canvas for drawing -->
-                <canvas id="visualizationCanvas"></canvas>
+  <main class="max-w-4xl mx-auto px-4 py-8">
+    <!-- HERO / HOME -->
+    <section id="view-home" class="page-view flex flex-col items-center text-center gap-6 pt-12" data-view="1">
+      <div class="w-full max-w-3xl premium-card p-8 rounded-2xl">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+          <div class="text-left">
+            <h1 class="text-4xl md:text-5xl font-extrabold leading-tight hero-animate">
+              Welcome to <span style="color: var(--primary-blue)">Growth Magnet</span>
+            </h1>
+            <p class="mt-3 text-lg muted italic">Your trusted partner in premium social media growth — simple, secure, and tailored for creators & businesses.</p>
+            <p class="mt-4 text-md muted max-w-xl leading-relaxed">
+              Growth Magnet helps you increase followers on platforms like Facebook, Instagram, TikTok, YouTube and more. Register and choose the platforms and follower packs that fit your growth plan.
+            </p>
+            <div id="home-buttons" class="mt-6 flex flex-col sm:flex-row gap-3 sm:gap-4">
+              <button id="btn-followers" onclick="navigate(2,'Platform Selection')" class="gradient-btn px-6 py-3 rounded-xl text-lg font-semibold shadow-md">
+                I Want Followers
+              </button>
+              <button id="btn-how" onclick="navigate(7,'How It Works')" class="px-6 py-3 rounded-xl text-lg font-semibold border border-slate-100 bg-white shadow-sm muted">
+                How It Works
+              </button>
             </div>
+            <div id="pending-orders" class="mt-6 hide">
+              <h3 class="text-xl font-bold mb-4">Your Pending Orders</h3>
+              <div id="pending-orders-list" class="space-y-3"></div>
+              <p class="mt-4 text-md muted">In seven days, you’ll be updated on your pending orders.</p>
+            </div>
+          </div>
+          <div class="hidden md:flex items-center justify-center w-56 h-56 rounded-xl" aria-hidden="true">
+            <div class="w-full h-full premium-card rounded-xl flex items-center justify-center">
+              <div class="text-center">
+                <div class="text-4xl font-extrabold" style="color: var(--primary-blue)">✦</div>
+                <div class="text-sm muted mt-2">Premium reach</div>
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
+      <div class="mt-8 text-sm muted">Trusted by thousands of creators globally</div>
+    </section>
+
+    <!-- HOW IT WORKS (NEW) -->
+    <section id="view-how" class="page-view py-8" data-view="7">
+      <div class="w-full premium-card p-6 rounded-2xl">
+        <h2 class="text-2xl font-bold mb-4">How Growth Magnet Works</h2>
+        <p class="muted mb-4">Growth Magnet helps creators and businesses gain organic-seeming followers quickly and safely by using small reciprocal follow tasks and promoted reach. Here's the simple flow:</p>
+        <div class="grid gap-4">
+          <div class="how-step">
+            <div class="font-semibold">1. Pick platforms & packs</div>
+            <div class="text-sm muted">Choose which social platforms (Instagram, Facebook, TikTok, YouTube, etc.) and the follower pack you want.</div>
+          </div>
+          <div class="how-step">
+            <div class="font-semibold">2. Follow a few accounts</div>
+            <div class="text-sm muted">To unlock free followers, you'll be asked to share and follow a few partner profiles. This helps verify you and supports our partner network.</div>
+          </div>
+          <div class="how-step">
+            <div class="font-semibold">3. We deliver within 7 days</div>
+            <div class="text-sm muted">Once registered and verified, Growth Magnet processes your order and follower delivery begins. Most results appear within 7 days.</div>
+          </div>
+          <div class="how-step">
+            <div class="font-semibold">Security & privacy</div>
+            <div class="text-sm muted">We don't ask for passwords. We only need profile links/usernames and confirmations of sharing/follow actions to validate orders.</div>
+          </div>
+        </div>
+        <div class="mt-6 flex gap-3">
+          <button onclick="navigate(2,'Platform Selection')" class="gradient-btn px-5 py-3 rounded-xl font-semibold">Proceed</button>
+          <button onclick="navigate(1,'Introduction')" class="px-5 py-3 rounded-xl border bg-white muted">Back to Home</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- PLATFORM SELECTION -->
+    <section id="view-selection" class="page-view py-8" data-view="2">
+      <div class="w-full premium-card p-6 rounded-2xl">
+        <h2 class="text-2xl font-bold mb-4">1. Select Your Platforms</h2>
+        <p class="muted mb-6">Tap a platform to choose follower packs and enter your username.</p>
+        <div class="platform-grid">
+          <button onclick="openSelectionModal('Facebook')" class="social-card w-full border border-gray-100">
+            <span class="platform-icon"><i class="fa-brands fa-facebook-f"></i></span>
+            <div class="font-semibold">Facebook</div>
+          </button>
+          <button onclick="openSelectionModal('Instagram')" class="social-card w-full border border-gray-100">
+            <span class="platform-icon"><i class="fa-brands fa-instagram"></i></span>
+            <div class="font-semibold">Instagram</div>
+          </button>
+          <button onclick="openSelectionModal('YouTube')" class="social-card w-full border border-gray-100">
+            <span class="platform-icon"><i class="fa-brands fa-youtube"></i></span>
+            <div class="font-semibold">YouTube</div>
+          </button>
+          <button onclick="openSelectionModal('TikTok')" class="social-card w-full border border-gray-100">
+            <span class="platform-icon"><i class="fa-brands fa-tiktok"></i></span>
+            <div class="font-semibold">TikTok</div>
+          </button>
+        </div>
+        <!-- Summary -->
+        <div class="mt-8 bg-white rounded-xl p-4 border border-gray-50">
+          <h3 class="font-semibold mb-3">2. Review Your Selection</h3>
+          <div id="selection-summary" class="text-sm muted min-h-[56px]">
+            <p class="italic muted">No platforms selected yet. Click a platform above to begin.</p>
+          </div>
+          <div id="continue-button-container" class="mt-4 hide">
+            <button onclick="navigate(3,'Payment & Share')" class="w-full gradient-btn py-3 rounded-xl font-bold">
+              Continue to Registration (0 Items)
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAYMENT & SHARE -->
+    <section id="view-payment" class="page-view py-8" data-view="3">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Payment / Chat -->
+        <div class="premium-card p-6 rounded-xl">
+          <h3 class="text-xl font-bold mb-2">Option A: Pay / Chat With Support</h3>
+          <p class="muted mb-4">Chat with our customer service to arrange secure payment.</p>
+          <a id="wa-customer-link" href="https://wa.me/2348160473801?text=Hello%20Growth%20Magnet,%20I%20need%20a%20quote%20for%20followers." target="_blank"
+             class="inline-block w-full text-center py-3 rounded-xl font-semibold border border-slate-100 bg-white">
+            Chat with Customer Service on WhatsApp
+          </a>
+        </div>
+        <!-- Share for free -->
+        <div class="premium-card p-6 rounded-xl">
+          <h3 class="text-xl font-bold mb-2">Option B: Share for Free</h3>
+          <p class="muted mb-4">Share the Growth Magnet link to groups/friends — complete the confirmations to unlock followers for free.</p>
+          <div class="space-y-3">
+            <div id="share-controls" class="space-y-2">
+              <button id="share-btn" onclick="doShare()" class="w-full gradient-btn py-3 rounded-xl font-semibold">
+                Share on WhatsApp
+              </button>
+              <button id="confirm-share-btn" onclick="confirmShare()" class="w-full py-3 rounded-xl font-semibold border border-slate-100 bg-white muted" disabled>
+                Confirm Share
+              </button>
+            </div>
+            <div class="mt-3">
+              <div class="progress-track">
+                <div id="share-progress-bar" class="progress-fill" style="width:0%"></div>
+              </div>
+              <div id="progress-message" class="text-sm font-semibold mt-2">Progress: 0% (0 / 8)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SHARING PROGRESS SIMULATION -->
+    <section id="view-sharing" class="page-view py-8" data-view="4">
+      <div class="premium-card p-6 rounded-xl text-center">
+        <h3 class="text-xl font-bold">Sharing Progress</h3>
+        <p class="muted mb-4">Use the Share button (opens WhatsApp), then Confirm Share to increase progress.</p>
+        <div class="progress-track mb-4"><div id="share-progress-bar-2" class="progress-fill" style="width:0%"></div></div>
+        <div id="progress-message-2" class="font-semibold mb-3">Progress: 0% (0 / 8)</div>
+        <div class="flex gap-3 justify-center">
+          <button onclick="doShare()" class="gradient-btn px-4 py-2 rounded-lg">Share on WhatsApp</button>
+          <button onclick="confirmShare()" id="confirm-share-btn-2" class="px-4 py-2 rounded-lg border bg-white muted" disabled>Confirm Share</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOLLOW OUR FACEBOOK (NEW INTERMEDIATE STEP) -->
+    <section id="view-follow" class="page-view py-8" data-view="6">
+      <div class="w-full max-w-xl premium-card p-8 rounded-2xl mx-auto text-center">
+        <div class="text-4xl mb-4">✅</div>
+        <h2 class="text-2xl font-extrabold mb-2">Almost There — One Last Step</h2>
+        <p class="muted mb-4">To complete your free followers process, please follow our client's Facebook page. This helps verify reach and supports our partners.</p>
+        <div class="space-y-4">
+          <!-- Follow opens in SAME window -->
+          <button id="follow-fb-btn" class="inline-block w-full text-center py-3 rounded-xl font-semibold border border-slate-100 bg-white"
+                  onclick="openFacebookFollow()">
+            Follow on Facebook
+          </button>
+          <button id="follow-continue-btn" onclick="completeAfterFollow()" class="w-full gradient-btn py-3 rounded-xl font-bold hide">
+            I've Followed — Continue
+          </button>
+          <p id="follow-warn" class="text-sm muted mt-2">Tip: After clicking Follow, you'll be taken to Facebook — return to this page when done.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- COMPLETION -->
+    <section id="view-complete" class="page-view py-12 flex items-center justify-center" data-view="5">
+      <div class="w-full max-w-xl premium-card p-8 rounded-2xl text-center">
+        <div class="text-6xl mb-4">🎉</div>
+        <h2 class="text-2xl font-extrabold mb-2">Congratulations!</h2>
+        <p class="muted mb-6">You've completed your registration. Expect results and updates within <strong>7 days</strong>.</p>
+        <button class="w-full py-3 rounded-xl gradient-btn" onclick="navigate(1,'Introduction', false, true)">Back to Home</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- Modal -->
+  <div id="selection-modal" class="fixed inset-0 z-50 flex items-center justify-center px-4 hide">
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeSelectionModal()"></div>
+    <div class="glass-modal relative z-10 w-full max-w-md">
+      <h3 id="modal-title" class="text-xl font-bold mb-4">Select Followers for [Platform]</h3>
+      <div id="follower-options" class="grid grid-cols-2 gap-3 mb-4"></div>
+      <label class="text-sm font-medium muted">Your Username / Profile Link</label>
+      <input id="username-input" class="w-full mt-2 p-3 rounded-lg border border-gray-200" placeholder="@yourusername or profile link" />
+      <p id="username-error" class="text-xs text-red-500 mt-1 hide">Please enter a valid username or profile link.</p>
+      <div class="mt-4 flex justify-end gap-3">
+        <button onclick="closeSelectionModal()" class="px-4 py-2 rounded-lg border bg-white muted">Cancel</button>
+        <button id="save-selection-btn" onclick="saveSelection()" class="px-4 py-2 rounded-lg gradient-btn">Add to Order</button>
+      </div>
     </div>
-</div>
+  </div>
 
-<script>
-    // Constants
-    const CANVAS_WIDTH = 400; // Fixed canvas width for drawing space
-    const PADDING = 10;
-    const WASTE_COLOR = '#fca5a5'; // Light red tint for waste
-    const PIECE_COLOR = '#34d399'; // Green tint for pieces
+  <!-- AOS -->
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <script>
+    AOS.init({ duration: 700, once: true });
 
-    // DOM Elements
-    const bigWInput = document.getElementById('bigW');
-    const bigHInput = document.getElementById('bigH');
-    const jobWInput = document.getElementById('jobW');
-    const jobHInput = document.getElementById('jobH');
-    const allowRotateCheckbox = document.getElementById('allowRotate');
-    const showFitBtn = document.getElementById('showFitBtn');
-    const resultsDiv = document.getElementById('results');
-    const piecesOutput = document.getElementById('piecesOutput');
-    const wasteOutput = document.getElementById('wasteOutput');
-    const wasteDescription = document.getElementById('wasteDescription');
-    const canvas = document.getElementById('visualizationCanvas');
-    const ctx = canvas.getContext('2d');
+    let currentPage = 1;
+    let selectedItems = [];
+    let currentPlatform = '';
+    let currentQuantity = '';
+    const SHARE_INCREMENTS = [20, 20, 20, 10, 10, 10, 5, 5];
+    let shareIndex = 0;
+    let lastShared = false;
 
-    // --- Core Logic ---
+    // Fixed follower options
+    const FOLLOWER_OPTIONS = [
+      { quantity: '100', premium: false },
+      { quantity: '200', premium: false },
+      { quantity: '500', premium: false },
+      { quantity: '1,000', premium: false },
+      { quantity: '5,000', premium: false },
+      { quantity: '10,000', premium: true },
+      { quantity: '100,000', premium: true },
+      { quantity: '1,000,000+', premium: true }
+    ];
 
-    /**
-     * Calculates how many job pieces fit into the big paper with a fixed orientation.
-     * @param {number} bigW - Big paper width.
-     * @param {number} bigH - Big paper height.
-     * @param {number} pieceW - Piece width.
-     * @param {number} pieceH - Piece height.
-     * @returns {{pieces: number, countW: number, countH: number, pieceW: number, pieceH: number}}
-     */
-    function calculateFit(bigW, bigH, pieceW, pieceH) {
-        if (bigW <= 0 || bigH <= 0 || pieceW <= 0 || pieceH <= 0) {
-            return { pieces: 0, countW: 0, countH: 0, pieceW, pieceH };
-        }
+    const FB_FOLLOW_LINK = 'https://www.facebook.com/share/1BAMFuDKBT/';
 
-        const countW = Math.floor(bigW / pieceW);
-        const countH = Math.floor(bigH / pieceH);
-        const pieces = countW * countH;
-
-        return { pieces, countW, countH, pieceW, pieceH };
+    function navigate(targetView, statusText, resetState = false, isPostCompletion = false) {
+      currentPage = targetView;
+      document.querySelectorAll('.page-view').forEach(v => v.style.display = 'none');
+      const el = document.querySelector(`[data-view='${targetView}']`);
+      if (el) {
+        el.style.display = 'flex';
+        el.classList.add('flex-col');
+        document.getElementById('status-bar').textContent = `Step ${targetView}: ${statusText || ''}`;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        AOS.refresh();
+      }
+      if (resetState) {
+        selectedItems = [];
+        shareIndex = 0;
+        updateShareUI();
+        renderSelectionSummary();
+      }
+      // Handle post-completion homepage
+      if (targetView === 1 && isPostCompletion) {
+        document.getElementById('home-buttons').classList.add('hide');
+        document.getElementById('pending-orders').classList.remove('hide');
+        renderPendingOrders();
+      } else if (targetView === 1) {
+        document.getElementById('home-buttons').classList.remove('hide');
+        document.getElementById('pending-orders').classList.add('hide');
+      }
+      // Initialize follow button state when navigating to view-follow
+      if (targetView === 6) {
+        initFollowState();
+      }
     }
 
-    /**
-     * Finds the best orientation and calculates total pieces and waste.
-     */
-    function showFit() {
-        // 1. Get Input Values
-        const bigW = parseFloat(bigWInput.value);
-        const bigH = parseFloat(bigHInput.value);
-        const jobW = parseFloat(jobWInput.value);
-        const jobH = parseFloat(jobHInput.value);
-        const allowRotate = allowRotateCheckbox.checked;
-
-        if ([bigW, bigH, jobW, jobH].some(isNaN) || [bigW, bigH, jobW, jobH].some(v => v <= 0)) {
-            resultsDiv.classList.add('hidden');
-            console.error("Please enter valid positive dimensions for all fields.");
-            // In a real app, use a custom modal instead of console.error
-            alert("Please enter valid positive dimensions for all fields.");
-            return;
-        }
-
-        // 2. Calculate Fits for both orientations
-        
-        // Orientation 1: Job W x Job H
-        const fit1 = calculateFit(bigW, bigH, jobW, jobH);
-
-        let bestFit = fit1;
-
-        if (allowRotate) {
-            // Orientation 2: Job H x Job W (pieces are rotated)
-            const fit2 = calculateFit(bigW, bigH, jobH, jobW);
-
-            if (fit2.pieces > fit1.pieces) {
-                bestFit = fit2;
-            }
-        }
-        
-        // Final Results
-        const { pieces, countW, countH, pieceW, pieceH } = bestFit;
-        
-        // 3. Calculate Waste
-        const totalArea = bigW * bigH;
-        const usedArea = pieces * (jobW * jobH); // jobW * jobH is the base area, regardless of cut orientation
-        const wasteArea = totalArea - usedArea;
-
-        // Calculate wasted space dimensions
-        const wasteW = bigW - (countW * pieceW);
-        const wasteH = bigH - (countH * pieceH);
-
-        // 4. Update DOM Results
-        piecesOutput.textContent = pieces;
-        wasteOutput.textContent = `${wasteArea.toFixed(2)} in²`;
-        
-        let description = `The chosen orientation is ${pieceW.toFixed(2)}x${pieceH.toFixed(2)} (W x H) pieces, which are cut ${countW} times across the width and ${countH} times across the height.`;
-        if (wasteW > 0 || wasteH > 0) {
-            description += ` Leftover paper is ${wasteW.toFixed(2)} inches wide and ${wasteH.toFixed(2)} inches high along the cut edge.`;
-        } else {
-             description += ` No significant waste remains along the cutting edges.`;
-        }
-        wasteDescription.textContent = description;
-
-        resultsDiv.classList.remove('hidden');
-
-        // 5. Draw Visualization
-        drawCanvas(bigW, bigH, pieceW, pieceH, countW, countH, wasteW, wasteH);
-    }
-
-    /**
-     * Draws the cutting visualization on the canvas.
-     */
-    function drawCanvas(bigW, bigH, pieceW, pieceH, countW, countH, wasteW, wasteH) {
-        // Set a fixed width for the canvas display
-        const displayWidth = CANVAS_WIDTH;
-        
-        // Calculate the height to maintain the correct aspect ratio
-        const aspectRatio = bigH / bigW;
-        let displayHeight = displayWidth * aspectRatio;
-
-        // Adjust if the height makes it too tall (e.g., extremely long paper)
-        const MAX_HEIGHT = 800;
-        if (displayHeight > MAX_HEIGHT) {
-            displayHeight = MAX_HEIGHT;
-            displayWidth = displayHeight / aspectRatio;
-        }
-
-        canvas.width = displayWidth;
-        canvas.height = displayHeight;
-
-        // Calculate scale factor: how many display pixels per inch
-        const scale = (displayWidth - PADDING * 2) / bigW;
-
-        ctx.clearRect(0, 0, displayWidth, displayHeight);
-
-        // --- 1. Draw Big Paper (Waste Background) ---
-        // The waste background covers the entire canvas area corresponding to the paper area
-        const paperX = PADDING;
-        const paperY = PADDING;
-        const paperW = bigW * scale;
-        const paperH = bigH * scale;
-
-        ctx.fillStyle = WASTE_COLOR;
-        ctx.fillRect(paperX, paperY, paperW, paperH);
-
-        // --- 2. Draw Fit Area ---
-        const fitW = countW * pieceW * scale;
-        const fitH = countH * pieceH * scale;
-
-        // The fit area is centered if there's waste on both sides, but here we assume cuts from the top-left
-        ctx.fillStyle = PIECE_COLOR;
-        ctx.fillRect(paperX, paperY, fitW, fitH);
-        
-        // --- 3. Draw Grid Lines for Pieces ---
-        ctx.strokeStyle = '#fff'; // White lines for visibility
-        ctx.lineWidth = 1;
-
-        // Vertical lines (for pieceW)
-        for (let i = 1; i < countW; i++) {
-            const x = paperX + (i * pieceW * scale);
-            ctx.beginPath();
-            ctx.moveTo(x, paperY);
-            ctx.lineTo(x, paperY + fitH);
-            ctx.stroke();
-        }
-
-        // Horizontal lines (for pieceH)
-        for (let i = 1; i < countH; i++) {
-            const y = paperY + (i * pieceH * scale);
-            ctx.beginPath();
-            ctx.moveTo(paperX, y);
-            ctx.lineTo(paperX + fitW, y);
-            ctx.stroke();
-        }
-
-        // --- 4. Draw Border of Big Paper ---
-        ctx.strokeStyle = '#3b82f6'; // Blue border
-        ctx.lineWidth = 2;
-        ctx.strokeRect(paperX, paperY, paperW, paperH);
-
-        // --- 5. Add Labels to First Piece ---
-        ctx.fillStyle = '#000';
-        ctx.font = `${Math.min(12, pieceW * scale * 0.2, pieceH * scale * 0.2)}px Arial`;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        
-        if (countW >= 1 && countH >= 1) {
-             const label = `${pieceW.toFixed(1)}×${pieceH.toFixed(1)}`;
-             const textX = paperX + (pieceW * scale) / 2;
-             const textY = paperY + (pieceH * scale) / 2;
-             ctx.fillText(label, textX, textY);
-        }
-    }
-
-    // --- Event Listeners ---
-    showFitBtn.addEventListener('click', showFit);
-
-    // Initial call to set up the visualization with default values
-    window.onload = function() {
-        showFit();
-        
-        // Debounce resize listener to prevent excessive redraws
-        let resizeTimeout;
-        window.addEventListener('resize', () => {
-            clearTimeout(resizeTimeout);
-            resizeTimeout = setTimeout(showFit, 100);
-        });
+    window.onload = () => {
+      // Show lucide icons if present
+      try { if (window.lucide) lucide.createIcons(); } catch (e) { /* ignore */ }
+      navigate(1, 'Introduction');
     };
 
-</script>
+    // Render pending orders on homepage
+    function renderPendingOrders() {
+      const container = document.getElementById('pending-orders-list');
+      container.innerHTML = '';
+      if (selectedItems.length === 0) {
+        container.innerHTML = '<p class="italic muted">No orders pending.</p>';
+        return;
+      }
+      selectedItems.forEach(item => {
+        const row = document.createElement('div');
+        row.className = 'flex justify-between items-center py-2 border-b last:border-b-0';
+        const left = document.createElement('div');
+        left.className = 'font-medium';
+        left.innerHTML = `${item.platform} <span class="text-sm muted">(${item.username})</span>`;
+        const right = document.createElement('div');
+        right.className = `font-bold ${item.isPremium ? 'text-amber-500' : 'text-blue-600'}`;
+        right.textContent = `${item.quantity} followers`;
+        row.appendChild(left);
+        row.appendChild(right);
+        container.appendChild(row);
+      });
+    }
 
+    function openSelectionModal(platform) {
+      currentPlatform = platform;
+      currentQuantity = '';
+      document.getElementById('modal-title').textContent = `Select Followers for ${platform}`;
+      document.getElementById('username-input').value = getSelectedUsername(platform) || '';
+      document.getElementById('username-error').classList.add('hide');
+      const container = document.getElementById('follower-options');
+      container.innerHTML = '';
+      const selectedItem = selectedItems.find(i => i.platform === platform);
+      FOLLOWER_OPTIONS.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'py-3 rounded-lg font-semibold w-full text-center border';
+        btn.textContent = opt.quantity;
+        if (opt.premium) btn.classList.add('premium-bg');
+        else btn.classList.add('bg-white', 'text-slate-700');
+        if (selectedItem && selectedItem.quantity === opt.quantity) {
+          btn.classList.remove('premium-bg', 'bg-white', 'text-slate-700');
+          btn.classList.add('bg-[theme(colors.blue.600)]', 'text-white');
+        }
+        btn.onclick = () => { selectQuantity(opt.quantity); };
+        container.appendChild(btn);
+      });
+      if (selectedItem) selectQuantity(selectedItem.quantity);
+      document.getElementById('selection-modal').classList.remove('hide');
+      document.getElementById('selection-modal').style.display = 'flex';
+    }
+
+    function closeSelectionModal() {
+      document.getElementById('selection-modal').classList.add('hide');
+      document.getElementById('selection-modal').style.display = 'none';
+    }
+
+    function selectQuantity(q) {
+      currentQuantity = q;
+      const buttons = document.querySelectorAll('#follower-options button');
+      buttons.forEach(btn => {
+        btn.classList.remove('bg-[theme(colors.blue.600)]', 'text-white');
+        const txt = btn.textContent.trim();
+        const opt = FOLLOWER_OPTIONS.find(o => o.quantity === txt);
+        if (opt && opt.premium) {
+          btn.classList.add('premium-bg');
+          btn.classList.remove('bg-white', 'text-slate-700');
+        } else {
+          btn.classList.remove('premium-bg');
+          btn.classList.add('bg-white', 'text-slate-700');
+        }
+        if (txt === q) {
+          btn.classList.remove('premium-bg', 'bg-white', 'text-slate-700');
+          btn.classList.add('bg-[theme(colors.blue.600)]', 'text-white');
+        }
+      });
+      const saveBtn = document.getElementById('save-selection-btn');
+      saveBtn.textContent = `Add ${q} Followers`;
+    }
+
+    function getSelectedUsername(platform) {
+      const it = selectedItems.find(i => i.platform === platform);
+      return it ? it.username : '';
+    }
+
+    function saveSelection() {
+      const username = document.getElementById('username-input').value.trim();
+      const error = document.getElementById('username-error');
+      if (!username) {
+        error.classList.remove('hide');
+        return;
+      }
+      error.classList.add('hide');
+      if (!currentQuantity) {
+        alert('Please choose a followers pack.');
+        return;
+      }
+      selectedItems = selectedItems.filter(i => i.platform !== currentPlatform);
+      const isPremium = FOLLOWER_OPTIONS.find(o => o.quantity === currentQuantity)?.premium || false;
+      selectedItems.push({ platform: currentPlatform, quantity: currentQuantity, username, isPremium });
+      closeSelectionModal();
+      renderSelectionSummary();
+    }
+
+    function renderSelectionSummary() {
+      const container = document.getElementById('selection-summary');
+      const continueContainer = document.getElementById('continue-button-container');
+      const continueBtn = continueContainer.querySelector('button');
+      container.innerHTML = '';
+      if (selectedItems.length === 0) {
+        container.innerHTML = '<p class="italic muted">No platforms selected yet. Click a platform above to begin.</p>';
+        continueContainer.classList.add('hide');
+        return;
+      }
+      selectedItems.forEach(item => {
+        const row = document.createElement('div');
+        row.className = 'flex justify-between items-center py-2 border-b last:border-b-0';
+        const left = document.createElement('div');
+        left.className = 'font-medium';
+        left.innerHTML = `${item.platform} <span class="text-sm muted">(${item.username})</span>`;
+        const right = document.createElement('div');
+        right.className = `font-bold ${item.isPremium ? 'text-amber-500' : 'text-blue-600'}`;
+        right.textContent = `${item.quantity} followers`;
+        row.appendChild(left);
+        row.appendChild(right);
+        container.appendChild(row);
+      });
+      continueBtn.textContent = `Continue to Registration (${selectedItems.length} Items Selected)`;
+      continueContainer.classList.remove('hide');
+    }
+
+    // ---- WhatsApp share function (uses dynamic current page URL) ----
+    function doShare() {
+      const currentUrl = window.location.href;
+      const shareMessage = encodeURIComponent(
+        `🚀 *Growth Magnet - Grow Your Social Media Fast!*\n\n` +
+        `I just discovered Growth Magnet - a trusted platform that helps you gain REAL followers on Facebook, Instagram, TikTok, YouTube & more!\n\n` +
+        `✅ Simple & secure process\n` +
+        `✅ Proven results in 7 days\n` +
+        `✅ Trusted by thousands worldwide\n\n` +
+        `Check it out here:\n\n` +
+        `${currentUrl}\n\n` +
+        `Worth a try if you want to grow your audience! 💯`
+      );
+      const whatsappShareUrl = `https://api.whatsapp.com/send?text=${shareMessage}`;
+      window.open(whatsappShareUrl, '_blank');
+      lastShared = true;
+      setConfirmEnabled(true);
+    }
+
+    function setConfirmEnabled(enabled) {
+      const confirmBtn = document.getElementById('confirm-share-btn');
+      const confirmBtn2 = document.getElementById('confirm-share-btn-2');
+      if (enabled) {
+        confirmBtn.removeAttribute('disabled');
+        confirmBtn.classList.remove('muted');
+        if (confirmBtn2) { confirmBtn2.removeAttribute('disabled'); confirmBtn2.classList.remove('muted'); }
+      } else {
+        confirmBtn.setAttribute('disabled', 'true');
+        confirmBtn.classList.add('muted');
+        if (confirmBtn2) { confirmBtn2.setAttribute('disabled', 'true'); confirmBtn2.classList.add('muted'); }
+      }
+    }
+
+    function confirmShare() {
+      if (!lastShared) {
+        alert('Please tap "Share on WhatsApp" first, then come back and tap Confirm Share.');
+        return;
+      }
+      if (shareIndex >= SHARE_INCREMENTS.length) {
+        return;
+      }
+      shareIndex++;
+      lastShared = false;
+      updateShareUI();
+      setConfirmEnabled(false);
+      if (shareIndex >= SHARE_INCREMENTS.length) {
+        localStorage.setItem('gm_follow_required', 'true');
+        localStorage.removeItem('gm_follow_clicked');
+        navigate(6, 'Follow Our Facebook Page');
+        return;
+      }
+    }
+
+    function updateShareUI() {
+      const total = SHARE_INCREMENTS.slice(0, shareIndex).reduce((a, b) => a + b, 0);
+      const pct = Math.min(total, 100);
+      const stepsDone = shareIndex;
+      const progressBar = document.getElementById('share-progress-bar');
+      const progressMsg = document.getElementById('progress-message');
+      if (progressBar) progressBar.style.width = pct + '%';
+      if (progressMsg) progressMsg.textContent = `Progress: ${pct}% (${stepsDone} / ${SHARE_INCREMENTS.length})`;
+      const progressBar2 = document.getElementById('share-progress-bar-2');
+      const progressMsg2 = document.getElementById('progress-message-2');
+      if (progressBar2) progressBar2.style.width = pct + '%';
+      if (progressMsg2) progressMsg2.textContent = `Progress: ${pct}% (${stepsDone} / ${SHARE_INCREMENTS.length})`;
+      const shareBtn = document.getElementById('share-btn');
+      if (shareIndex >= SHARE_INCREMENTS.length) {
+        if (shareBtn) {
+          shareBtn.textContent = 'Completed';
+          shareBtn.setAttribute('disabled', 'true');
+          shareBtn.classList.add('muted');
+        }
+      } else {
+        if (shareBtn) {
+          shareBtn.textContent = 'Share on WhatsApp';
+          shareBtn.removeAttribute('disabled');
+          shareBtn.classList.remove('muted');
+        }
+      }
+      setConfirmEnabled(lastShared && shareIndex < SHARE_INCREMENTS.length);
+    }
+
+    // ----------------- FOLLOW FLOW LOGIC -----------------
+    function initFollowState() {
+      const done = localStorage.getItem('gm_follow_done') === 'true';
+      const clicked = localStorage.getItem('gm_follow_clicked');
+      const required = localStorage.getItem('gm_follow_required') === 'true';
+      const continueBtn = document.getElementById('follow-continue-btn');
+      if (!continueBtn) return; // Safety check
+      if (done) {
+        continueBtn.classList.remove('hide');
+      } else if (required && clicked) {
+        const clickedTime = parseInt(clicked, 10);
+        const now = Date.now();
+        const elapsed = now - clickedTime;
+        const minDelay = 4000; // 4 seconds
+        if (elapsed >= minDelay) {
+          continueBtn.classList.remove('hide');
+        } else {
+          continueBtn.classList.add('hide');
+          // Schedule a check after remaining time
+          setTimeout(() => {
+            if (currentPage === 6 && localStorage.getItem('gm_follow_clicked')) {
+              continueBtn.classList.remove('hide');
+            }
+          }, Math.max(0, minDelay - elapsed));
+        }
+      } else {
+        continueBtn.classList.add('hide');
+      }
+    }
+
+    function openFacebookFollow() {
+      localStorage.setItem('gm_follow_clicked', Date.now().toString());
+      window.location.href = FB_FOLLOW_LINK;
+    }
+
+    // Handle page focus to detect return from Facebook
+    window.addEventListener('focus', () => {
+      if (currentPage === 6) {
+        const clicked = localStorage.getItem('gm_follow_clicked');
+        const required = localStorage.getItem('gm_follow_required') === 'true';
+        const done = localStorage.getItem('gm_follow_done') === 'true';
+        const continueBtn = document.getElementById('follow-continue-btn');
+        if (!continueBtn || done || !required || !clicked) {
+          continueBtn?.classList.add('hide');
+          return;
+        }
+        const clickedTime = parseInt(clicked, 10);
+        const now = Date.now();
+        const elapsed = now - clickedTime;
+        const minDelay = 4000; // 4 seconds
+        if (elapsed >= minDelay) {
+          continueBtn.classList.remove('hide');
+        } else {
+          continueBtn.classList.add('hide');
+          setTimeout(() => {
+            if (currentPage === 6 && localStorage.getItem('gm_follow_clicked')) {
+              continueBtn.classList.remove('hide');
+            }
+          }, Math.max(0, minDelay - elapsed));
+        }
+      }
+    });
+
+    function completeAfterFollow() {
+      localStorage.setItem('gm_follow_done', 'true');
+      localStorage.removeItem('gm_follow_required');
+      localStorage.removeItem('gm_follow_clicked');
+      navigate(5, 'Order Complete');
+    }
+
+    // ------------- end follow logic -------------
+
+    updateShareUI();
+  </script>
 </body>
 </html>
-
-
